@@ -19,9 +19,25 @@ app.get("/webhook", (req, res) => {
 });
 
 app.post("/webhook", (req, res) => {
-  console.log("Webhook received:", JSON.stringify(req.body, null, 2));
-  res.sendStatus(200);
+  const data = req.body;
+
+  if (data.entry && data.entry.length > 0) {
+    const changes = data.entry[0].changes;
+    if (changes && changes.length > 0) {
+      const value = changes.value;
+      if (value.messages && value.messages.length > 0) {
+        const message = value.messages;
+        const from = message.from;           // Customer's WhatsApp number
+        const text = message.text?.body;     // Customer's message text
+
+        console.log(`Message from ${from}: ${text}`);
+      }
+    }
+  }
+
+  res.sendStatus(200);  // Acknowledge receipt
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
